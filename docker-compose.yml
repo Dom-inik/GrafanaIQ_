@@ -1,0 +1,32 @@
+version: '3.6'
+
+services:
+  influxdb:
+    image: influxdb:1.8
+    volumes: 
+      - influxdb:/var/lib/influxdb
+
+  grafana:
+    image: grafana/grafana:6.7.4
+    ports:
+      - "80:3000"
+    depends_on:
+      - influxdb
+  
+  connector:
+    image: isilon_data_insights_connector:latest
+    configs:
+      - source: example_config
+        target: /usr/src/app/isi_data_insights_d.cfg
+    deploy:
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - influxdb
+
+volumes:
+  influxdb:
+
+configs:
+  example_config: 
+    external: true
